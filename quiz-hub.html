@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Acute Medicine Education — daily SBA training across three disciplines: medical (MRCP/SCE), nursing, and pharmacy. Hand-authored vignettes mapped to UK guidelines.">
+<title>Acute Medicine Education · Quiz Hub</title>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MULTI-DISCIPLINE QUIZ HUB
+     ═══════════════════════════════════════════════════════════════
+     Front door for three independent quiz applications:
+       1. Medical / MRCP-SCE   (sce-acute-quiz.html)
+       2. Nursing              (Acute-medicine-nursing-quiz.html)
+       3. Pharmacy             (acute-medicine-pharmacy-quiz.html)
+
+     DEPLOYMENT
+     1. Update the URLs in QUIZ_HUB_CONFIG below to point at wherever
+        each of the three quizzes is hosted. Use relative paths if
+        they all live in the same folder, absolute URLs otherwise.
+     2. To hide a discipline (e.g. you only have medical + nursing),
+        set its `enabled: false` in the config.
+     3. Upload to GitHub Pages OR a SharePoint document library and
+        link to it from a Modern SharePoint Page.
+
+     This file uses no external CDNs (only Google Fonts), no
+     localStorage, no analytics. Works in iframes.
+     ═══════════════════════════════════════════════════════════════ -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIG — replace each URL with where you've hosted that quiz
+// ═══════════════════════════════════════════════════════════════
+window.QUIZ_HUB_CONFIG = {
+  // Department / team display name (shown in the header)
+  ownerName: 'Acute Medicine Education',
+
+  // Optional contact for queries (leave '' to hide)
+  contactEmail: '',
+
+  // The three quiz applications
+  disciplines: {
+    medical: {
+      enabled: true,
+      url: 'sce-acute-quiz.html',
+      questionCount: 366,
+      topicCount: 13
+    },
+    nursing: {
+      enabled: true,
+      url: 'Acute-medicine-nursing-quiz.html',
+      questionCount: 366,
+      topicCount: 15
+    },
+    pharmacy: {
+      enabled: true,
+      url: 'acute-medicine-pharmacy-quiz.html',
+      questionCount: 398,
+      topicCount: 11
+    }
+  }
+};
+</script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --paper: #F7F3EA;
+  --paper-warm: #EFE9DA;
+  --paper-soft: #FBF8F1;
+  --ink: #0F1F2E;
+  --ink-soft: #2C3E50;
+  --ink-muted: #5A6B7E;
+  --rule: #D6CFBF;
+
+  /* Discipline accent palette — each card gets its own */
+  --medical:        #4A6E5D;   /* sage green — matches the medical quiz */
+  --medical-deep:   #2F4A3D;
+  --medical-soft:   #E8E4D6;
+
+  --nursing:        #A04B3F;   /* warm clay — distinguishes from sage */
+  --nursing-deep:   #6E2F26;
+  --nursing-soft:   #F2DFD7;
+
+  --pharmacy:       #0D4F4A;   /* deep teal — matches the pharmacy quiz */
+  --pharmacy-deep:  #073531;
+  --pharmacy-soft:  #D9E5E2;
+
+  /* Default accent (used by header / footer / blueprint bars) */
+  --accent: #4A6E5D;
+  --accent-deep: #2F4A3D;
+  --accent-soft: #E8E4D6;
+  --warm: #B45309;
+  --highlight: #FAEBC8;
+
+  --shadow: 0 1px 2px rgba(15, 31, 46, 0.04), 0 8px 24px rgba(15, 31, 46, 0.06);
+  --shadow-lift: 0 4px 12px rgba(15, 31, 46, 0.08), 0 16px 40px rgba(15, 31, 46, 0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--paper);
+  background-image:
+    radial-gradient(ellipse 80% 40% at 50% 0%, rgba(74, 110, 93, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 60% at 100% 100%, rgba(180, 83, 9, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 0% 70%, rgba(13, 79, 74, 0.04) 0%, transparent 50%);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Subtle grain texture overlay for paper feel */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.4;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.6 0 0 0 0 0.55 0 0 0 0 0.45 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.wrap {
+  position: relative;
+  z-index: 2;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 64px 32px;
+}
+
+/* ────────────────── HEADER ────────────────── */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 64px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: 18px;
+  border-radius: 2px;
+  position: relative;
+}
+
+.brand-mark::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 1px solid var(--paper);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.meta-info {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.meta-info span:not(:last-child)::after {
+  content: '·';
+  margin-left: 24px;
+  opacity: 0.5;
+}
+
+/* ────────────────── HERO ────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 80px;
+  align-items: end;
+  margin-bottom: 96px;
+  padding-bottom: 8px;
+}
+
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--ink-muted);
+}
+
+h1 {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(48px, 7vw, 80px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 28px;
+  font-variation-settings: 'opsz' 144;
+}
+
+h1 em {
+  font-style: italic;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+.lede {
+  font-family: 'Fraunces', serif;
+  font-size: 19px;
+  line-height: 1.55;
+  font-weight: 400;
+  color: var(--ink-soft);
+  max-width: 540px;
+  margin-bottom: 36px;
+  font-variation-settings: 'opsz' 14;
+}
+
+.cta-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: translateX(-101%);
+  transition: transform 0.3s cubic-bezier(0.7, 0, 0.3, 1);
+  z-index: -1;
+}
+
+.btn:hover { color: var(--paper); }
+.btn:hover::before { transform: translateX(0); }
+
+.btn-arrow {
+  transition: transform 0.2s ease;
+}
+
+.btn:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+/* ────────────────── HERO FIGURE ────────────────── */
+.hero-right {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.hero-figure {
+  background: var(--paper-soft);
+  border: 1px solid var(--rule);
+  padding: 36px 36px 32px;
+  width: 100%;
+  max-width: 360px;
+  position: relative;
+  box-shadow: var(--shadow);
+}
+
+.hero-figure::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--medical) 0%, var(--medical) 33.33%, var(--nursing) 33.33%, var(--nursing) 66.66%, var(--pharmacy) 66.66%, var(--pharmacy) 100%);
+}
+
+.figure-label-top {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.figure-number {
+  font-family: 'Fraunces', serif;
+  font-size: 84px;
+  font-weight: 300;
+  line-height: 0.95;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  font-variation-settings: 'opsz' 144;
+  margin-bottom: 4px;
+}
+
+.figure-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+.figure-divider {
+  height: 1px;
+  background: var(--rule);
+  margin: 24px 0 20px;
+}
+
+.figure-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px 20px;
+}
+
+.figure-stat .num {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 500;
+  display: block;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+
+.figure-stat .lbl {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+}
+
+/* ────────────────── SECTION TITLES ────────────────── */
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 40px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.section-title span:first-child {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.section-title .roman {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+
+/* ────────────────── DISCIPLINE CARDS ────────────────── */
+.disciplines {
+  margin-bottom: 96px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.card {
+  background: var(--paper-soft);
+  border: 1px solid var(--rule);
+  padding: 36px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 0.3s ease,
+              border-color 0.2s ease;
+  overflow: hidden;
+  min-height: 360px;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--card-accent, var(--accent));
+}
+
+.card::after {
+  content: '';
+  position: absolute;
+  bottom: -40%;
+  right: -30%;
+  width: 280px;
+  height: 280px;
+  background: var(--card-accent-soft, var(--accent-soft));
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+  border-color: var(--card-accent, var(--accent));
+}
+
+.card:hover::after { opacity: 0.4; }
+
+.card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--accent));
+  font-weight: 500;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--card-accent, var(--accent));
+}
+
+.card-title {
+  font-family: 'Fraunces', serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--ink);
+  margin-bottom: 8px;
+  letter-spacing: -0.015em;
+}
+
+.card-subtitle {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 16px;
+  color: var(--ink-muted);
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.card-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 24px;
+  flex: 1;
+}
+
+.card-stats {
+  display: flex;
+  gap: 24px;
+  padding: 16px 0;
+  border-top: 1px solid var(--rule);
+  margin-bottom: 16px;
+}
+
+.card-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-stat .num {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.card-stat .lbl {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
+.card-action {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--card-accent, var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-action .arrow {
+  transition: transform 0.2s ease;
+  font-size: 16px;
+}
+
+.card:hover .card-action .arrow {
+  transform: translateX(4px);
+}
+
+/* Disabled card state */
+.card.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(0.4);
+}
+
+.card.disabled .card-action {
+  color: var(--ink-muted);
+}
+
+/* ────────────────── BLUEPRINT (per discipline) ────────────────── */
+.blueprint {
+  margin-bottom: 96px;
+}
+
+.blueprint-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.bp-column {
+  border-top: 2px solid var(--col-accent, var(--accent));
+  padding-top: 20px;
+}
+
+.bp-column-head {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--col-accent, var(--accent));
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.bp-column-title {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+
+.bp-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bp-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13.5px;
+  line-height: 1.4;
+  gap: 12px;
+}
+
+.bp-list li:last-child {
+  border-bottom: none;
+}
+
+.bp-topic {
+  color: var(--ink-soft);
+}
+
+.bp-count-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ────────────────── DEPLOYMENT NOTE ────────────────── */
+.deploy-note {
+  background: var(--paper-warm);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  padding: 32px 36px;
+  margin-bottom: 64px;
+  position: relative;
+}
+
+.deploy-note h3 {
+  font-family: 'Fraunces', serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 16px;
+  letter-spacing: -0.01em;
+}
+
+.deploy-note p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  margin-bottom: 12px;
+  max-width: 760px;
+}
+
+.deploy-note p:last-child { margin-bottom: 0; }
+
+.deploy-note code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: var(--paper);
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+/* Warning banner if URLs not configured */
+.config-warning {
+  background: var(--highlight);
+  border: 1px solid #DAA520;
+  border-left: 3px solid #B45309;
+  padding: 16px 24px;
+  margin-bottom: 32px;
+  font-size: 14px;
+  color: #6B3410;
+  display: none;
+}
+
+.config-warning code {
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+/* ────────────────── FOOTER ────────────────── */
+footer {
+  border-top: 1px solid var(--rule);
+  padding-top: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+footer .colophon {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-muted);
+}
+
+/* ────────────────── ANIMATIONS ────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-left, .hero-right { animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+.hero-right { animation-delay: 0.15s; }
+.section-title { animation: fadeUp 0.6s ease backwards; animation-delay: 0.3s; }
+.cards-grid > .card { animation: fadeUp 0.6s ease backwards; }
+.cards-grid > .card:nth-child(1) { animation-delay: 0.4s; }
+.cards-grid > .card:nth-child(2) { animation-delay: 0.5s; }
+.cards-grid > .card:nth-child(3) { animation-delay: 0.6s; }
+.bp-column { animation: fadeUp 0.6s ease backwards; }
+.bp-column:nth-child(1) { animation-delay: 0.7s; }
+.bp-column:nth-child(2) { animation-delay: 0.8s; }
+.bp-column:nth-child(3) { animation-delay: 0.9s; }
+
+/* ────────────────── RESPONSIVE ────────────────── */
+@media (max-width: 980px) {
+  .cards-grid { grid-template-columns: 1fr 1fr; }
+  .blueprint-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
+}
+
+@media (max-width: 720px) {
+  .wrap { padding: 32px 20px; }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 48px;
+    margin-bottom: 64px;
+  }
+  h1 { font-size: clamp(40px, 10vw, 64px); }
+  .lede { font-size: 17px; }
+  header { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .blueprint-grid { grid-template-columns: 1fr; }
+  footer { flex-direction: column; gap: 12px; align-items: flex-start; }
+  .hero-figure { max-width: none; }
+}
+
+@media (max-width: 480px) {
+  .cta-row { flex-direction: column; align-items: stretch; }
+  .btn { width: 100%; justify-content: center; }
+  .figure-number { font-size: 64px; }
+  .card { padding: 28px 24px 24px; min-height: 320px; }
+  .card-title { font-size: 28px; }
+}
+
+/* Print stylesheet for handouts */
+@media print {
+  body::before, .config-warning, .cta-row, .deploy-note { display: none; }
+  body { background: white; }
+  .card { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ─────────── HEADER ─────────── -->
+<header>
+  <div class="brand">
+    <div class="brand-mark">A</div>
+    <span id="owner-name">Acute Medicine Education</span>
+  </div>
+  <div class="meta-info">
+    <span>Multi-discipline</span>
+    <span>UK guidelines</span>
+    <span id="header-date">—</span>
+  </div>
+</header>
+
+<!-- ─────────── CONFIGURATION WARNING ─────────── -->
+<div class="config-warning" id="config-warning">
+  ⚠ <strong>Configuration needed:</strong> Update the URLs in the <code>QUIZ_HUB_CONFIG.disciplines</code> block at the top of this file before sharing this page. At least one discipline must have a valid <code>url</code> set.
+</div>
+
+<!-- ─────────── HERO ─────────── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="eyebrow"><span id="today-eyebrow">Today's training</span></div>
+    <h1>Three disciplines.<br><em>One classroom.</em></h1>
+    <p class="lede">A daily SBA training library for the acute medicine team — doctors, nurses, and pharmacists. Each discipline runs the same teaching format: one carefully authored question per day, mapped deterministically to the day of the year, with worked rationale and current UK guideline links.</p>
+    <div class="cta-row">
+      <a href="#disciplines" class="btn">
+        Choose a discipline <span class="btn-arrow">↓</span>
+      </a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-figure">
+      <div class="figure-label-top">Day of the year</div>
+      <div class="figure-number" id="figure-day">—</div>
+      <div class="figure-label" id="figure-label">—</div>
+      <div class="figure-divider"></div>
+      <div class="figure-stats">
+        <div class="figure-stat"><span class="num" id="stat-total">—</span><span class="lbl">Total questions</span></div>
+        <div class="figure-stat"><span class="num">3</span><span class="lbl">Disciplines</span></div>
+        <div class="figure-stat"><span class="num">366</span><span class="lbl">Daily rotation</span></div>
+        <div class="figure-stat"><span class="num">100%</span><span class="lbl">Hand-authored</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────── DISCIPLINE CARDS ─────────── -->
+<section class="disciplines" id="disciplines">
+  <div class="section-title">
+    <span>Choose your discipline</span>
+    <span class="roman">i. — launch</span>
+  </div>
+  <div class="cards-grid" id="cards-grid">
+    <!-- Cards rendered by script below from QUIZ_HUB_CONFIG -->
+  </div>
+</section>
+
+<!-- ─────────── BLUEPRINT — per discipline ─────────── -->
+<section class="blueprint" id="curriculum">
+  <div class="section-title">
+    <span>Curriculum coverage</span>
+    <span class="roman">ii. — content</span>
+  </div>
+
+  <div class="blueprint-grid">
+
+    <!-- ─── MEDICAL ─── -->
+    <div class="bp-column" style="--col-accent: var(--medical);">
+      <div class="bp-column-head">Medical · MRCP / SCE</div>
+      <div class="bp-column-title">Acute Medicine SCE blueprint</div>
+      <ul class="bp-list">
+        <li><span class="bp-topic">Cardiovascular</span><span class="bp-count-num">37</span></li>
+        <li><span class="bp-topic">Respiratory</span><span class="bp-count-num">36</span></li>
+        <li><span class="bp-topic">Gastroenterology / hepatology</span><span class="bp-count-num">37</span></li>
+        <li><span class="bp-topic">Neurology</span><span class="bp-count-num">36</span></li>
+        <li><span class="bp-topic">Elderly medicine</span><span class="bp-count-num">33</span></li>
+        <li><span class="bp-topic">Endocrine &amp; diabetes</span><span class="bp-count-num">26</span></li>
+        <li><span class="bp-topic">Infectious diseases</span><span class="bp-count-num">26</span></li>
+        <li><span class="bp-topic">Rheumatology / MSK</span><span class="bp-count-num">22</span></li>
+        <li><span class="bp-topic">Haematology &amp; oncology</span><span class="bp-count-num">18</span></li>
+        <li><span class="bp-topic">Clinical pharmacology &amp; poisoning</span><span class="bp-count-num">18</span></li>
+        <li><span class="bp-topic">Critical care</span><span class="bp-count-num">18</span></li>
+        <li><span class="bp-topic">Renal medicine</span><span class="bp-count-num">18</span></li>
+        <li><span class="bp-topic">Allergy, genetics, derm, ethics, stats</span><span class="bp-count-num">41</span></li>
+      </ul>
+    </div>
+
+    <!-- ─── NURSING ─── -->
+    <div class="bp-column" style="--col-accent: var(--nursing);">
+      <div class="bp-column-head">Nursing</div>
+      <div class="bp-column-title">Acute medical ward priorities</div>
+      <ul class="bp-list">
+        <li><span class="bp-topic">Sepsis &amp; deterioration</span><span class="bp-count-num">36</span></li>
+        <li><span class="bp-topic">Respiratory emergencies</span><span class="bp-count-num">36</span></li>
+        <li><span class="bp-topic">Cardiology</span><span class="bp-count-num">36</span></li>
+        <li><span class="bp-topic">ABCDE &amp; resuscitation</span><span class="bp-count-num">30</span></li>
+        <li><span class="bp-topic">Renal &amp; fluids</span><span class="bp-count-num">30</span></li>
+        <li><span class="bp-topic">Neurology</span><span class="bp-count-num">30</span></li>
+        <li><span class="bp-topic">Endocrine emergencies</span><span class="bp-count-num">30</span></li>
+        <li><span class="bp-topic">Gastroenterology</span><span class="bp-count-num">22</span></li>
+        <li><span class="bp-topic">Poisoning &amp; overdose</span><span class="bp-count-num">22</span></li>
+        <li><span class="bp-topic">Medication safety</span><span class="bp-count-num">22</span></li>
+        <li><span class="bp-topic">Mental capacity &amp; ethics</span><span class="bp-count-num">16</span></li>
+        <li><span class="bp-topic">Transfusion</span><span class="bp-count-num">14</span></li>
+        <li><span class="bp-topic">Infection control</span><span class="bp-count-num">14</span></li>
+        <li><span class="bp-topic">Falls &amp; frailty</span><span class="bp-count-num">14</span></li>
+        <li><span class="bp-topic">Anaphylaxis</span><span class="bp-count-num">14</span></li>
+      </ul>
+    </div>
+
+    <!-- ─── PHARMACY ─── -->
+    <div class="bp-column" style="--col-accent: var(--pharmacy);">
+      <div class="bp-column-head">Pharmacy</div>
+      <div class="bp-column-title">Acute medicine prescribing decisions</div>
+      <ul class="bp-list">
+        <li><span class="bp-topic">Toxicology</span><span class="bp-count-num">60</span></li>
+        <li><span class="bp-topic">Antimicrobials &amp; TDM</span><span class="bp-count-num">47</span></li>
+        <li><span class="bp-topic">Anticoagulation</span><span class="bp-count-num">41</span></li>
+        <li><span class="bp-topic">Cardiac</span><span class="bp-count-num">40</span></li>
+        <li><span class="bp-topic">Endocrine &amp; metabolic</span><span class="bp-count-num">35</span></li>
+        <li><span class="bp-topic">Neurology</span><span class="bp-count-num">33</span></li>
+        <li><span class="bp-topic">Respiratory</span><span class="bp-count-num">30</span></li>
+        <li><span class="bp-topic">Gastroenterology</span><span class="bp-count-num">30</span></li>
+        <li><span class="bp-topic">Haematology</span><span class="bp-count-num">29</span></li>
+        <li><span class="bp-topic">Renal &amp; fluids</span><span class="bp-count-num">27</span></li>
+        <li><span class="bp-topic">Critical care</span><span class="bp-count-num">26</span></li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<!-- ─────────── DEPLOYMENT NOTE ─────────── -->
+<div class="deploy-note">
+  <h3>For team administrators</h3>
+  <p>This is the front door — a launcher for three independent quiz applications (medical, nursing, pharmacy). Each quiz runs on GitHub Pages because most NHS SharePoint tenants block JavaScript in uploaded HTML files. The hub itself can live anywhere: a SharePoint document library, a Modern SharePoint Page (via the Embed or Quick Links web part), or directly on GitHub Pages alongside the three quiz files.</p>
+  <p>Update the URLs in the <code>QUIZ_HUB_CONFIG.disciplines</code> block at the top of the source file before deploying — relative paths if all four files share a folder, absolute URLs otherwise. To hide a discipline (e.g. you only run medical and nursing), set its <code>enabled: false</code>. No localStorage, no analytics, no tracking. Question rotation is fully deterministic — the same date returns the same question on every device, every year, in every discipline.</p>
+</div>
+
+<!-- ─────────── FOOTER ─────────── -->
+<footer>
+  <div>v4.0 · multi-discipline · daily mode</div>
+  <div class="colophon">Set in Fraunces &amp; DM Sans on warm paper.</div>
+  <div id="footer-owner">Acute Medicine Education</div>
+</footer>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// HUB BOOTSTRAP — render discipline cards from config
+// ═══════════════════════════════════════════════════════════════
+(function () {
+  const cfg = window.QUIZ_HUB_CONFIG || {};
+  const disciplines = cfg.disciplines || {};
+
+  // ─── Static metadata for each discipline (display copy) ──────
+  const META = {
+    medical: {
+      eyebrow: 'Medical · MRCP / SCE',
+      title: 'Medical',
+      subtitle: 'doctors & SCE candidates',
+      desc: 'Single best answer questions written to the MRCP Acute Medicine SCE blueprint. Hand-authored vignettes with worked rationale, differentials, and current UK guideline links.',
+      audience: '13 specialties',
+      cta: 'Open medical quiz',
+      cssVar: 'var(--medical)',
+      cssVarSoft: 'var(--medical-soft)'
+    },
+    nursing: {
+      eyebrow: 'Nursing',
+      title: 'Nursing',
+      subtitle: 'registered & student nurses',
+      desc: 'Bedside-priority SBAs covering sepsis, NEWS2, deterioration, drug administration, mental capacity, and the everyday clinical decisions of an acute medical ward.',
+      audience: '15 sections',
+      cta: 'Open nursing quiz',
+      cssVar: 'var(--nursing)',
+      cssVarSoft: 'var(--nursing-soft)'
+    },
+    pharmacy: {
+      eyebrow: 'Pharmacy',
+      title: 'Pharmacy',
+      subtitle: 'medical admissions pharmacists',
+      desc: 'Pharmacist-level prescribing decisions: which agent, which dose, which monitoring plan, which interaction matters. Toxicology, anticoagulation, antimicrobial stewardship and more.',
+      audience: '11 topic areas',
+      cta: 'Open pharmacy quiz',
+      cssVar: 'var(--pharmacy)',
+      cssVarSoft: 'var(--pharmacy-soft)'
+    }
+  };
+
+  // ─── Owner / contact display ─────────────────────────────────
+  const ownerName = cfg.ownerName || 'Acute Medicine Education';
+  const ownerEl = document.getElementById('owner-name');
+  const footerOwnerEl = document.getElementById('footer-owner');
+  if (ownerEl) ownerEl.textContent = ownerName;
+  if (footerOwnerEl) footerOwnerEl.textContent = ownerName;
+
+  // ─── Today's date / day-of-year ──────────────────────────────
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - start) / 86400000);
+  const dayEl = document.getElementById('figure-day');
+  const labelEl = document.getElementById('figure-label');
+  const eyebrowEl = document.getElementById('today-eyebrow');
+  const headerDateEl = document.getElementById('header-date');
+  if (dayEl) dayEl.textContent = dayOfYear;
+  if (labelEl) labelEl.textContent = 'Day ' + dayOfYear + ' of ' + now.getFullYear();
+  if (eyebrowEl) {
+    const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+    eyebrowEl.textContent = 'Today · ' + dateStr;
+  }
+  if (headerDateEl) {
+    headerDateEl.textContent = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  // ─── Render discipline cards ─────────────────────────────────
+  const grid = document.getElementById('cards-grid');
+  let totalQuestions = 0;
+  let configuredCount = 0;
+  const order = ['medical', 'nursing', 'pharmacy'];
+
+  order.forEach(function (key) {
+    const d = disciplines[key] || {};
+    const meta = META[key];
+    if (!meta) return;
+
+    // Skip entirely if disabled
+    if (d.enabled === false) return;
+
+    const url = (d.url || '').trim();
+    const qCount = d.questionCount || 0;
+    const tCount = d.topicCount || 0;
+    const isConfigured = url.length > 0;
+    if (isConfigured) {
+      configuredCount += 1;
+      totalQuestions += qCount;
+    }
+
+    const card = document.createElement(isConfigured ? 'a' : 'div');
+    card.className = 'card' + (isConfigured ? '' : ' disabled');
+    if (isConfigured) {
+      card.href = url;
+      card.setAttribute('aria-label', meta.cta);
+    }
+    card.style.setProperty('--card-accent', meta.cssVar);
+    card.style.setProperty('--card-accent-soft', meta.cssVarSoft);
+
+    card.innerHTML =
+      '<div class="card-content">' +
+        '<div class="card-eyebrow">' + meta.eyebrow + '</div>' +
+        '<div class="card-title">' + meta.title + '</div>' +
+        '<div class="card-subtitle">For ' + meta.subtitle + '</div>' +
+        '<div class="card-desc">' + meta.desc + '</div>' +
+        '<div class="card-stats">' +
+          '<div class="card-stat"><span class="num">' + (qCount || '—') + '</span><span class="lbl">Questions</span></div>' +
+          '<div class="card-stat"><span class="num">' + (tCount || '—') + '</span><span class="lbl">Topics</span></div>' +
+        '</div>' +
+        '<div class="card-action">' +
+          '<span>' + (isConfigured ? meta.cta : 'URL not configured') + '</span>' +
+          '<span class="arrow">→</span>' +
+        '</div>' +
+      '</div>';
+
+    grid.appendChild(card);
+  });
+
+  // ─── Total questions stat ────────────────────────────────────
+  const totalEl = document.getElementById('stat-total');
+  if (totalEl) {
+    totalEl.textContent = totalQuestions > 0 ? totalQuestions.toLocaleString('en-GB') : '—';
+  }
+
+  // ─── Show config warning if NO disciplines have URLs ─────────
+  if (configuredCount === 0) {
+    document.getElementById('config-warning').style.display = 'block';
+  }
+})();
+</script>
+
+</body>
+</html>
